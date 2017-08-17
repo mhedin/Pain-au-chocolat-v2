@@ -12,6 +12,7 @@ import com.morgane.painauchocolatv2.R;
 import com.morgane.painauchocolatv2.models.Participant;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 /**
  * The activity finding randomly the next person who will bring the breakfast.
@@ -49,8 +50,24 @@ public class NextBringerActivity extends AppCompatActivity implements View.OnCli
 
         mRealm = Realm.getDefaultInstance();
 
+
+        long potentialBringersCount = Participant.getPotentialBringersCount(mRealm);
+
+        // If everybody has bring the breakfast, reset the status of all the participant to prepare the next session
+        if (potentialBringersCount == 0) {
+            mRealm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    RealmResults<Participant> participants = mRealm.where(Participant.class).findAll();
+                    for (Participant participant : participants) {
+                        participant.setHasAlreadyBring(false);
+                    }
+                }
+            });
+        }
+
         // Disable the button to choose another bringer if there is only one possible choice
-        if (Participant.getPotentialBringersCount(mRealm) == 1) {
+        if (potentialBringersCount == 1) {
             findViewById(R.id.bringer_another_button).setEnabled(false);
         } else {
             findViewById(R.id.bringer_another_button).setOnClickListener(this);
@@ -105,8 +122,7 @@ public class NextBringerActivity extends AppCompatActivity implements View.OnCli
 
             case R.id.bringer_ok_button:
                 // Save the name of the next bringer selected.
-                Realm realm = Realm.getDefaultInstance();
-                realm.executeTransaction(new Realm.Transaction() {
+                mRealm.executeTransaction(new Realm.Transaction() {
                     @Override
                     public void execute(Realm realm) {
                         mBringer.setHasAlreadyBring(true);
