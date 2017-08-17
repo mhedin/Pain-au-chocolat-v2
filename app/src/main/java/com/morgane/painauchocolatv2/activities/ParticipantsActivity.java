@@ -1,6 +1,7 @@
 package com.morgane.painauchocolatv2.activities;
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,6 +17,7 @@ import com.morgane.painauchocolatv2.fragments.ShowParticipantInfoDialogFragment;
 import com.morgane.painauchocolatv2.interfaces.DatabaseManipulation;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 import com.morgane.painauchocolatv2.interfaces.RecyclerViewOnItemLongClickListener;
 import com.morgane.painauchocolatv2.models.Participant;
@@ -44,14 +46,22 @@ public class ParticipantsActivity extends AppCompatActivity implements View.OnCl
 
         realm = Realm.getDefaultInstance();
 
-        mAdapter = new ParticipantAdapter(realm.where(Participant.class).findAll().sort("name"), this);
+        RealmResults<Participant> participantRealmResults = realm.where(Participant.class).findAll().sort("name");
+
+        mAdapter = new ParticipantAdapter(participantRealmResults, this);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.participants_recyclerView);
         recyclerView.setAdapter(mAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         mAdapter.notifyDataSetChanged();
 
-        findViewById(R.id.participants_add_fab).setOnClickListener(this);
+        FloatingActionButton addParticipantButton = (FloatingActionButton) findViewById(R.id.participants_add_fab);
+        addParticipantButton.setOnClickListener(this);
+
+        // If there is no participant created yet, display directly the dialog to add one
+        if (participantRealmResults.isEmpty()) {
+            addParticipantButton.performClick();
+        }
     }
 
     @Override
@@ -79,6 +89,9 @@ public class ParticipantsActivity extends AppCompatActivity implements View.OnCl
                 realm.copyToRealm(participant);
             }
         });
+
+        // Indicate the database has changed
+        setResult(RESULT_OK);
     }
 
     @Override
@@ -100,6 +113,9 @@ public class ParticipantsActivity extends AppCompatActivity implements View.OnCl
                 participant.setIsTheActualBringer(newIsTheActualBringerValue);
             }
         });
+
+        // Indicate the database has changed
+        setResult(RESULT_OK);
     }
 
     @Override
@@ -111,6 +127,9 @@ public class ParticipantsActivity extends AppCompatActivity implements View.OnCl
                 participant.deleteFromRealm();
             }
         });
+
+        // Indicate the database has changed
+        setResult(RESULT_OK);
     }
 
     @Override

@@ -46,9 +46,15 @@ public class NextBringerActivity extends AppCompatActivity implements View.OnCli
 
         toolbar.findViewById(R.id.toolbar_close_imageButton).setOnClickListener(this);
         findViewById(R.id.bringer_ok_button).setOnClickListener(this);
-        findViewById(R.id.bringer_another_button).setOnClickListener(this);
 
         mRealm = Realm.getDefaultInstance();
+
+        // Disable the button to choose another bringer if there is only one possible choice
+        if (Participant.getPotentialBringersCount(mRealm) == 1) {
+            findViewById(R.id.bringer_another_button).setEnabled(false);
+        } else {
+            findViewById(R.id.bringer_another_button).setOnClickListener(this);
+        }
 
         findABringer();
     }
@@ -99,6 +105,25 @@ public class NextBringerActivity extends AppCompatActivity implements View.OnCli
 
             case R.id.bringer_ok_button:
                 // Save the name of the next bringer selected.
+                Realm realm = Realm.getDefaultInstance();
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        mBringer.setHasAlreadyBring(true);
+
+                        // There can be only one actual bringer at a time, so remove the old one if there were
+                        Participant actualBringer = realm.where(Participant.class).equalTo("isTheActualBringer", true).findFirst();
+                        if (actualBringer != null) {
+                            actualBringer.setIsTheActualBringer(false);
+                        }
+
+                        mBringer.setIsTheActualBringer(true);
+                    }
+                });
+
+                // Indicate the database has changed
+                setResult(RESULT_OK);
+                finish();
                 break;
         }
     }

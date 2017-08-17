@@ -178,4 +178,22 @@ public class Participant extends RealmObject implements Parcelable {
     public static boolean doesParticipantAlreadyExist(String name, Realm realm) {
         return !realm.where(Participant.class).equalTo("name", name).findAll().isEmpty();
     }
+
+    /**
+     * Get the number of participants registered.
+     * @param realm The Realm instance.
+     * @return The number of participants registered.
+     */
+    public static long getParticipantsCount(Realm realm) {
+        return realm.where(Participant.class).count();
+    }
+
+    /**
+     * Get the number of participants which have not bring the breakfast yet for this session.
+     * @param realm The Realm instance.
+     * @return The number of participants which have not bring the breakfast yet for this session.
+     */
+    public static long getPotentialBringersCount(Realm realm) {
+        return realm.where(Participant.class).equalTo("hasAlreadyBring", false).count();
+    }
 }
