@@ -1,6 +1,8 @@
 package com.morgane.painauchocolatv2.adapters;
 
+import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +27,11 @@ public class ParticipantAdapter extends RealmRecyclerViewAdapter<Participant, Pa
     private RecyclerViewOnItemLongClickListener onItemLongClickListener;
 
     /**
+     * The padding to display on top of the first element of the list and on bottom of the last element.
+     */
+    private int mBorderPadding;
+
+    /**
      * Constructor of the adapter.
      * @param items The list of participants to display.
      * @param onItemLongClickListener The listener to used to manage the OnLongClick events.
@@ -32,6 +39,9 @@ public class ParticipantAdapter extends RealmRecyclerViewAdapter<Participant, Pa
     public ParticipantAdapter(OrderedRealmCollection<Participant> items, RecyclerViewOnItemLongClickListener onItemLongClickListener) {
         super(items, true);
         this.onItemLongClickListener = onItemLongClickListener;
+
+        DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
+        mBorderPadding = Math.round(8 * (metrics.densityDpi / 160f));
     }
 
     @Override
@@ -51,6 +61,15 @@ public class ParticipantAdapter extends RealmRecyclerViewAdapter<Participant, Pa
         int leftDrawable = participant.isTheActualBringer() ? R.drawable.ic_actual_bringer :
                 participant.hasAlreadyBring() ? R.drawable.ic_check_mark : R.mipmap.ic_launcher;
         holder.name.setCompoundDrawablesWithIntrinsicBounds(leftDrawable, 0, 0, 0);
+
+        // Add top padding for the first element of the list, and bottom padding for the last one
+        if (position == 0) {
+            holder.name.setPadding(0, mBorderPadding, 0, 0);
+        } else if (position == getItemCount() - 1) {
+            holder.name.setPadding(0, 0, 0, mBorderPadding);
+        } else {
+            holder.name.setPadding(0, 0, 0, 0);
+        }
 
         holder.name.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
