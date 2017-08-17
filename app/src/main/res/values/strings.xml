@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Pain au Chocolat</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="participants_title">Participants</string>
+
+    <string name="button_who_bring">Qui sera le prochain ?</string>
+    <string name="text_next_to_bring_nobody_selected">Vous n\'avez pas encore sélectionné la personne qui apportera le petit déjeuner. Appuyez sur le bouton pour le découvrir !</string>
+    <string name="text_next_to_bring_with_selection">La personne qui doit apporter le petit déjeuner est...\n<b>%s</b></string>
+
+    <string name="bringer_choosen_one">La personne qui doit apporter le petit déjeuner est</string>
+    <string name="bringer_choose">Ok</string>
+    <string name="bringer_another_one">Un autre</string>
+
+    <string name="add_participant_title">Ajouter un participant</string>
+    <string name="add_participant_name">Nom</string>
+    <string name="add_participant_ok">Ajouter</string>
+    <string name="add_participant_cancel">Annuler</string>
+    <string name="add_participant_error_empty">Veuillez entrer un nom</string>
+    <string name="add_participant_error_already_exists">Ce participant existe déjà</string>
+
+    <string name="show_participant_message_not_bring">%s n\'a pas encore apporté le petit déjeuner pour cette session.</string>
+    <string name="show_participant_message_already_bring">%s a déjà apporté le petit déjeuner pour cette session.</string>
+    <string name="show_participant_button_next">En faire le prochain</string>
+    <string name="show_participant_button_delete">Supprimer</string>
+    <string name="show_participant_button_cancel_bring">Il/Elle n\'a pas apporté</string>
+    <string name="show_participant_button_ok">Ok</string>
+
+</resources>
