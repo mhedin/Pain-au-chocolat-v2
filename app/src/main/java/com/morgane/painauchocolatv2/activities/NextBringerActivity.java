@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.morgane.painauchocolatv2.R;
@@ -34,6 +35,22 @@ public class NextBringerActivity extends AppCompatActivity implements View.OnCli
      */
     private Realm mRealm;
 
+    /**
+     * The Button to validate the bringer.
+     */
+    private Button mValidateButton;
+
+    /**
+     * The Button to search for another bringer than the one proposed.
+     */
+    private Button mAnotherBringerButton;
+
+    /**
+     * Flag indicating if the Button to find another bringer must be enabled. It is not if there is
+     * only one potential bringer left.
+     */
+    private boolean mEnableAnotherBringerButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,10 +63,14 @@ public class NextBringerActivity extends AppCompatActivity implements View.OnCli
         mBringerTextView = (TextView) findViewById(R.id.bringer_name_textView);
 
         toolbar.findViewById(R.id.toolbar_close_imageButton).setOnClickListener(this);
-        findViewById(R.id.bringer_ok_button).setOnClickListener(this);
+
+        mValidateButton = (Button) findViewById(R.id.bringer_ok_button);
+        mAnotherBringerButton = (Button) findViewById(R.id.bringer_another_button);
+
+        mValidateButton.setOnClickListener(this);
+        mAnotherBringerButton.setOnClickListener(this);
 
         mRealm = Realm.getDefaultInstance();
-
 
         long potentialBringersCount = Participant.getPotentialBringersCount(mRealm);
 
@@ -67,11 +88,7 @@ public class NextBringerActivity extends AppCompatActivity implements View.OnCli
         }
 
         // Disable the button to choose another bringer if there is only one possible choice
-        if (potentialBringersCount == 1) {
-            findViewById(R.id.bringer_another_button).setEnabled(false);
-        } else {
-            findViewById(R.id.bringer_another_button).setOnClickListener(this);
-        }
+        mEnableAnotherBringerButton = potentialBringersCount != 1;
 
         findABringer();
     }
@@ -80,6 +97,10 @@ public class NextBringerActivity extends AppCompatActivity implements View.OnCli
      * Find randomly a potential bringer for the breakfast, displayed after a countdown.
      */
     private void findABringer() {
+        //Disable the buttons to avoid the user to launch for another request while processing
+        mValidateButton.setEnabled(false);
+        mAnotherBringerButton.setEnabled(false);
+
         Participant newBringer;
         // Get a random potential bringer, different from the previous selected if there was one
         do {
@@ -102,7 +123,14 @@ public class NextBringerActivity extends AppCompatActivity implements View.OnCli
             }
 
             public void onFinish() {
+                // Display the name of the new bringer
                 mBringerTextView.setText(mBringer.getName());
+
+                // Reactivate the buttons
+                mValidateButton.setEnabled(true);
+                if (mEnableAnotherBringerButton) {
+                    mAnotherBringerButton.setEnabled(true);
+                }
             }
 
         }.start();
