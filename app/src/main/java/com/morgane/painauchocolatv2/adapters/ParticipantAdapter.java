@@ -63,12 +63,13 @@ public class ParticipantAdapter extends RealmRecyclerViewAdapter<Participant, Pa
         holder.name.setCompoundDrawablesWithIntrinsicBounds(leftDrawable, 0, 0, 0);
 
         // Add top padding for the first element of the list, and bottom padding for the last one
+        int defaultPadding = holder.name.getPaddingLeft();
         if (position == 0) {
-            holder.name.setPadding(0, mBorderPadding, 0, 0);
+            holder.name.setPadding(defaultPadding, mBorderPadding, defaultPadding, 0);
         } else if (position == getItemCount() - 1) {
-            holder.name.setPadding(0, 0, 0, mBorderPadding);
+            holder.name.setPadding(defaultPadding, 0, defaultPadding, mBorderPadding);
         } else {
-            holder.name.setPadding(0, 0, 0, 0);
+            holder.name.setPadding(defaultPadding, 0, defaultPadding, 0);
         }
 
         holder.name.setOnLongClickListener(new View.OnLongClickListener() {
