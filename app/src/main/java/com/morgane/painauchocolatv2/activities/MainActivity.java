@@ -46,8 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
 
-        Typeface customTypeface = Typeface.createFromAsset(getAssets(),
-                "fonts/GreatVibes_Regular.otf");
+        Typeface customTypeface = Typeface.createFromAsset(getAssets(), "fonts/GreatVibes_Regular.otf");
         TextView appNameTextView = (TextView) findViewById(R.id.home_painAuChocolat_textView);
         appNameTextView.setTypeface(customTypeface);
 

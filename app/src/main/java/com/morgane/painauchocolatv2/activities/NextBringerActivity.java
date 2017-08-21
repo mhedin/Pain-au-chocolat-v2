@@ -1,7 +1,9 @@
 package com.morgane.painauchocolatv2.activities;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -11,6 +13,9 @@ import android.widget.TextView;
 
 import com.morgane.painauchocolatv2.R;
 import com.morgane.painauchocolatv2.models.Participant;
+
+import java.util.List;
+import java.util.Random;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -46,10 +51,14 @@ public class NextBringerActivity extends AppCompatActivity implements View.OnCli
     private Button mAnotherBringerButton;
 
     /**
-     * Flag indicating if the Button to find another bringer must be enabled. It is not if there is
-     * only one potential bringer left.
+     * The font used to display the name of the next bringer.
      */
-    private boolean mEnableAnotherBringerButton;
+    private Typeface mBringerNameFont;
+
+    /**
+     * The list of participants who have not bring the breakfast for this session yet.
+     */
+    private List<Participant> mPotentialBringerList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,10 +81,10 @@ public class NextBringerActivity extends AppCompatActivity implements View.OnCli
 
         mRealm = Realm.getDefaultInstance();
 
-        long potentialBringersCount = Participant.getPotentialBringersCount(mRealm);
+        mPotentialBringerList = Participant.getPotentialBringers(mRealm);
 
         // If everybody has bring the breakfast, reset the status of all the participant to prepare the next session
-        if (potentialBringersCount == 0) {
+        if (mPotentialBringerList.isEmpty()) {
             mRealm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
@@ -83,12 +92,14 @@ public class NextBringerActivity extends AppCompatActivity implements View.OnCli
                     for (Participant participant : participants) {
                         participant.setHasAlreadyBring(false);
                     }
+                    mPotentialBringerList = participants;
                 }
             });
         }
 
-        // Disable the button to choose another bringer if there is only one possible choice
-        mEnableAnotherBringerButton = potentialBringersCount != 1;
+        // Set the font of the bringer name
+        mBringerNameFont = Typeface.createFromAsset(getAssets(), "fonts/GreatVibes_Regular.otf");
+        mBringerTextView.setTypeface(mBringerNameFont);
 
         findABringer();
     }
@@ -101,39 +112,81 @@ public class NextBringerActivity extends AppCompatActivity implements View.OnCli
         mValidateButton.setEnabled(false);
         mAnotherBringerButton.setEnabled(false);
 
-        Participant newBringer;
         // Get a random potential bringer, different from the previous selected if there was one
+        Participant newBringer;
         do {
-            newBringer = Participant.getRandomPotentialBringer(mRealm);
+            newBringer = getRandomPotentialBringer(mPotentialBringerList);
         } while(mBringer != null && mBringer.getName().equals(newBringer.getName()));
 
         mBringer = newBringer;
 
-        new CountDownTimer(4000, 1000) {
+        // Do different effects if there is only one potential bringer or if there is several
+        if (mPotentialBringerList.size() > 1) {
 
-            public void onTick(long millisUntilFinished) {
-                // Show a waiting time with points, or remove text if it's a new bringer to found
-                if (mBringerTextView.getText() != null
-                        && mBringerTextView.getText().length() > 0
-                        && (mBringerTextView.getText().equals(".") || mBringerTextView.getText().equals(".."))) {
+            // Do a roulette effect before displaying the name of the potential next bringer
+            new CountDownTimer(5000, 70) {
+
+                public void onTick(long millisUntilFinished) {
+
+                /* Change randomly the name of the potential bringer. Until 2 sec, change it fast. Then slowly until 1 sec,
+                 * and slower until the end. */
+                    if (millisUntilFinished > 2000
+                            || (millisUntilFinished > 1000 && millisUntilFinished % 2 == 0)
+                            || (millisUntilFinished <= 1000 && millisUntilFinished % 3 == 0)) {
+                        mBringerTextView.setText(getRandomPotentialBringer(mPotentialBringerList).getName());
+                    }
+                }
+
+                public void onFinish() {
+                    displayNextBringerName();
+                }
+
+            }.start();
+
+        } else {
+
+            // If there is one bringer left, display suspension points before displaying his name
+            mBringerTextView.setText("");
+            new CountDownTimer(4000, 1000) {
+
+                public void onTick(long millisUntilFinished) {
                     mBringerTextView.setText(mBringerTextView.getText() + ".");
-                } else {
-                    mBringerTextView.setText(".");
                 }
-            }
 
-            public void onFinish() {
-                // Display the name of the new bringer
-                mBringerTextView.setText(mBringer.getName());
-
-                // Reactivate the buttons
-                mValidateButton.setEnabled(true);
-                if (mEnableAnotherBringerButton) {
-                    mAnotherBringerButton.setEnabled(true);
+                public void onFinish() {
+                    displayNextBringerName();
                 }
-            }
 
-        }.start();
+            }.start();
+        }
+    }
+
+    /**
+     * Get a potential bringer, randomly.
+     * @param potentialBringers The list of potential bringers.
+     * @return A random potential bringer.
+     */
+    private Participant getRandomPotentialBringer(List<Participant> potentialBringers) {
+        Random random = new Random(System.nanoTime());
+        int randomPosition = random.nextInt(potentialBringers.size());
+        return potentialBringers.get(randomPosition);
+    }
+
+    /**
+     * Display the name of the selected potential next bringer, and reactivate the buttons.
+     */
+    private void displayNextBringerName() {
+        // Display the name of the new bringer
+        mBringerTextView.setText(mBringer.getName());
+        mBringerTextView.setTextColor(ContextCompat.getColor(NextBringerActivity.this, R.color.brown));
+        mBringerTextView.setTypeface(mBringerNameFont, Typeface.BOLD);
+
+        // Reactivate the buttons
+        mValidateButton.setEnabled(true);
+        // Allow to choose another bringer only if there is more than one left
+        if (mPotentialBringerList.size() > 1) {
+            mAnotherBringerButton.setEnabled(true);
+        }
     }
 
     @Override
@@ -145,6 +198,8 @@ public class NextBringerActivity extends AppCompatActivity implements View.OnCli
 
             case R.id.bringer_another_button:
                 // The user may want to select another person.
+                mBringerTextView.setTextColor(ContextCompat.getColor(NextBringerActivity.this, android.R.color.tertiary_text_light));
+                mBringerTextView.setTypeface(mBringerNameFont, Typeface.NORMAL);
                 findABringer();
                 break;
 

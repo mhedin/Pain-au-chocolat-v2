@@ -3,6 +3,7 @@ package com.morgane.painauchocolatv2.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.List;
 import java.util.Random;
 
 import io.realm.Realm;
@@ -153,20 +154,12 @@ public class Participant extends RealmObject implements Parcelable {
     };
 
     /**
-     * Get a random participant which has not bring the breakfast for this session yet.
+     * Get the list of all the participants who have not bring the breakfast for this session yet.
      * @param realm The Realm instance.
-     * @return A random participant which has not bring the breakfast for this session yet.
+     * @return The list of all the participants who have not bring the breakfast for this session yet
      */
-    public static Participant getRandomPotentialBringer(Realm realm) {
-        // Get all the potential bringers
-        RealmResults<Participant> results = realm.where(Participant.class).equalTo("hasAlreadyBring", false).findAll();
-
-        // Generate a random number to select a bringer randomly
-        Random random = new Random(System.nanoTime());
-        int randomPosition = random.nextInt(results.size());
-
-        // Return the random bringer selected
-        return results.get(randomPosition);
+    public static List<Participant> getPotentialBringers(Realm realm) {
+        return realm.where(Participant.class).equalTo("hasAlreadyBring", false).findAll();
     }
 
     /**
