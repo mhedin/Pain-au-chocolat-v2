@@ -13,6 +13,7 @@
     <string name="text_next_to_bring_with_selection">La personne qui doit apporter le petit déjeuner est...\n<b>%s</b></string>
     <string name="text_no_participant_created">Vous n\'avez pas encore créé de participants ! Cliquez sur le bouton rose pour en ajouter.</string>
 
+    <string name="next_bringer_title">Qui sera le prochain ?</string>
     <string name="bringer_choosen_one">La personne qui doit apporter le petit déjeuner est</string>
     <string name="bringer_choose">Ok</string>
     <string name="bringer_another_one">Un autre</string>

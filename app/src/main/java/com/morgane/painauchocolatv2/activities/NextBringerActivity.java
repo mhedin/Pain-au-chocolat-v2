@@ -71,8 +71,6 @@ public class NextBringerActivity extends AppCompatActivity implements View.OnCli
 
         mBringerTextView = (TextView) findViewById(R.id.bringer_name_textView);
 
-        toolbar.findViewById(R.id.toolbar_close_imageButton).setOnClickListener(this);
-
         mValidateButton = (Button) findViewById(R.id.bringer_ok_button);
         mAnotherBringerButton = (Button) findViewById(R.id.bringer_another_button);
 
@@ -192,10 +190,6 @@ public class NextBringerActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.toolbar_close_imageButton:
-                finish();
-                break;
-
             case R.id.bringer_another_button:
                 // The user may want to select another person.
                 mBringerTextView.setTextColor(ContextCompat.getColor(NextBringerActivity.this, android.R.color.tertiary_text_light));
